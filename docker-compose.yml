@@ -1,0 +1,9 @@
+services:
+  app:
+    container_name: flask-devsecops-pipeline
+    build:
+      context: .
+    image: flask-devsecops-pipeline:latest
+    ports:
+      - "80:80"
+    restart: unless-stopped
