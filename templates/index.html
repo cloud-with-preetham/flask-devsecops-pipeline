@@ -5,44 +5,452 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Flask DevSecOps Pipeline</title>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap");
+
       :root {
-        color-scheme: light;
+        --bg: #f4f8f7;
+        --bg-accent: #d6ece4;
+        --ink: #102428;
+        --muted: #49636a;
+        --panel: #ffffff;
+        --line: #d7e5e1;
+        --ok: #15756c;
+        --warn: #ab5f1b;
+        --info: #1f6fa3;
+        --shadow: 0 16px 30px rgba(16, 36, 40, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
       }
 
       body {
         margin: 0;
+        font-family: "Sora", "Avenir Next", "Segoe UI", sans-serif;
+        color: var(--ink);
         min-height: 100vh;
-        display: grid;
-        place-items: center;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f6f8ff, #ecfdf5);
-        color: #111827;
+        background:
+          radial-gradient(circle at 8% 8%, #f8d8ab 0%, transparent 26%),
+          radial-gradient(circle at 90% 12%, var(--bg-accent) 0%, transparent 24%),
+          linear-gradient(160deg, var(--bg) 0%, #eef7f4 100%);
       }
 
-      main {
-        text-align: center;
-        padding: 2rem;
-        border-radius: 16px;
-        background: #ffffff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        max-width: 560px;
+      .shell {
+        width: min(1160px, 92vw);
+        margin: 1.8rem auto 2.4rem;
+        padding: 0.2rem;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .top {
+        padding: 1.2rem 1.2rem 1rem;
+        margin-bottom: 0.85rem;
+      }
+
+      .brand {
+        display: flex;
+        gap: 0.8rem;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .title {
+        display: flex;
+        gap: 0.7rem;
+        align-items: center;
+      }
+
+      .pulse {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--ok);
+        box-shadow: 0 0 0 0 rgba(21, 117, 108, 0.45);
+        animation: pulse 1.8s infinite;
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
       }
 
       h1 {
-        margin: 0 0 0.75rem;
-        font-size: 2rem;
+        margin: 0.2rem 0 0;
+        font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+        letter-spacing: -0.03em;
       }
 
-      p {
+      .status-chip {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        border: 1px solid #b7d8cf;
+        background: #e9f8f2;
+        color: var(--ok);
+        border-radius: 999px;
+        padding: 0.35rem 0.58rem;
+        white-space: nowrap;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 0.85rem;
+      }
+
+      .hero-main,
+      .hero-metrics {
+        padding: 1.1rem;
+      }
+
+      h2 {
         margin: 0;
-        color: #374151;
+        font-size: clamp(1.3rem, 2.4vw, 2rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+      }
+
+      .lead {
+        margin: 0.7rem 0 0.95rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      .chips span {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.76rem;
+        border: 1px solid #d7e6e2;
+        background: #f7fbfa;
+        border-radius: 9px;
+        padding: 0.3rem 0.45rem;
+      }
+
+      .kpis {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.6rem;
+        height: 100%;
+      }
+
+      .kpi {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 0.7rem;
+        background: linear-gradient(160deg, #ffffff 0%, #f6fbfa 100%);
+      }
+
+      .kpi b {
+        display: block;
+        font-size: 1.4rem;
+        letter-spacing: -0.03em;
+      }
+
+      .kpi small {
+        color: var(--muted);
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.7rem;
+        margin-top: 0.85rem;
+      }
+
+      .stage {
+        padding: 0.9rem;
+      }
+
+      .stage h3 {
+        margin: 0 0 0.4rem;
+        font-size: 0.94rem;
+      }
+
+      .stage p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+
+      .stage-ok {
+        border-top: 4px solid var(--ok);
+      }
+
+      .stage-warn {
+        border-top: 4px solid var(--warn);
+      }
+
+      .stage-info {
+        border-top: 4px solid var(--info);
+      }
+
+      .lower {
+        margin-top: 0.85rem;
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 0.85rem;
+      }
+
+      .timeline,
+      .runbook {
+        padding: 1rem 1rem 1.1rem;
+      }
+
+      .timeline h4,
+      .runbook h4 {
+        margin: 0 0 0.6rem;
+        font-size: 1rem;
+      }
+
+      .timeline ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .timeline li {
+        padding: 0.52rem 0 0.52rem 1.25rem;
+        position: relative;
+        border-bottom: 1px dashed #d6e2de;
+        font-size: 0.9rem;
+        color: #2b464d;
+      }
+
+      .timeline li:last-child {
+        border-bottom: none;
+      }
+
+      .timeline li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.87rem;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--warn);
+      }
+
+      .cmd {
+        margin: 0;
+        padding: 0.7rem;
+        border-radius: 10px;
+        border: 1px solid #d2e2de;
+        background: #f7fcfa;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.77rem;
+        overflow: auto;
+        line-height: 1.55;
+      }
+
+      .note {
+        margin: 0.7rem 0 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: show 0.6s ease forwards;
+      }
+
+      .d1 {
+        animation-delay: 0.08s;
+      }
+
+      .d2 {
+        animation-delay: 0.16s;
+      }
+
+      .d3 {
+        animation-delay: 0.24s;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(21, 117, 108, 0.45);
+        }
+        50% {
+          box-shadow: 0 0 0 8px rgba(21, 117, 108, 0);
+        }
+      }
+
+      @keyframes show {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .lower {
+          grid-template-columns: 1fr;
+        }
+
+        .pipeline {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: 94vw;
+          margin-top: 1rem;
+        }
+
+        .brand {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .pipeline {
+          grid-template-columns: 1fr;
+        }
+
+        .kpis {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .pulse,
+        .reveal {
+          animation: none;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <h1>DevSecOps Pipeline Running</h1>
-      <p>Flask app is healthy and serving template content.</p>
+    <main class="shell">
+      <section class="top card reveal">
+        <div class="brand">
+          <div class="title">
+            <span class="pulse" aria-hidden="true"></span>
+            <div>
+              <p class="eyebrow">Production Flask Service</p>
+              <h1>DevSecOps Control Center</h1>
+            </div>
+          </div>
+          <span class="status-chip">Status: Active</span>
+        </div>
+      </section>
+
+      <section class="hero">
+        <article class="hero-main card reveal d1">
+          <h2>Secure delivery, cleaner workflows, and reliable deployment.</h2>
+          <p class="lead">
+            My pipeline now reflects production discipline: reusable workflow orchestration, deterministic security
+            scans, Docker build resilience, and EC2 deployment stabilization with consistent image naming.
+          </p>
+          <div class="chips">
+            <span>Reusable Workflows</span>
+            <span>Trivy + Gitleaks</span>
+            <span>Build Retry Strategy</span>
+            <span>EC2 Auto-Docker Setup</span>
+            <span>Node24 Migration Path</span>
+          </div>
+        </article>
+
+        <aside class="hero-metrics card reveal d2">
+          <div class="kpis">
+            <div class="kpi">
+              <b>8</b>
+              <small>Pipeline Jobs</small>
+            </div>
+            <div class="kpi">
+              <b>3x</b>
+              <small>Push Retries</small>
+            </div>
+            <div class="kpi">
+              <b>2</b>
+              <small>Security Scanners</small>
+            </div>
+            <div class="kpi">
+              <b>1</b>
+              <small>Image Naming Standard</small>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="pipeline">
+        <article class="stage stage-ok card reveal d1">
+          <h3>Code Quality</h3>
+          <p>Black, isort, flake8, and Bandit normalized in reusable checks.</p>
+        </article>
+        <article class="stage stage-ok card reveal d1">
+          <h3>Dependency Audit</h3>
+          <p>pip-audit validates runtime packages from pinned requirements.</p>
+        </article>
+        <article class="stage stage-info card reveal d2">
+          <h3>Docker Build</h3>
+          <p>Buildx + retry loop reduces registry timeout failures.</p>
+        </article>
+        <article class="stage stage-ok card reveal d2">
+          <h3>Image Scan</h3>
+          <p>Trivy CLI container scan with controlled ignore file handling.</p>
+        </article>
+        <article class="stage stage-info card reveal d2">
+          <h3>Secrets Scan</h3>
+          <p>Gitleaks runs inside Docker for stable runner behavior.</p>
+        </article>
+        <article class="stage stage-warn card reveal d3">
+          <h3>Deploy Host</h3>
+          <p>EC2 now installs Docker if missing before container rollout.</p>
+        </article>
+        <article class="stage stage-ok card reveal d3">
+          <h3>Image Naming</h3>
+          <p>Unified to flask-devsecops-pipeline across build and deploy.</p>
+        </article>
+        <article class="stage stage-info card reveal d3">
+          <h3>Runtime</h3>
+          <p>Flask service runs in containerized mode on port 80.</p>
+        </article>
+      </section>
+
+      <section class="lower">
+        <article class="timeline card reveal d2">
+          <h4>Today&apos;s Engineering Log</h4>
+          <ul>
+            <li>Refactored workflows into reusable components and parent orchestration.</li>
+            <li>Resolved Trivy and Gitleaks execution stability issues in CI runners.</li>
+            <li>Addressed Docker push reliability with retries and Buildx bootstrap.</li>
+            <li>Fixed deploy flow to match Docker Hub image source and server prerequisites.</li>
+            <li>Modernized this frontend to present the real operational state of your work.</li>
+          </ul>
+        </article>
+
+        <article class="runbook card reveal d3">
+          <h4>Quick Runbook</h4>
+          <pre class="cmd">docker build -t flask-devsecops-pipeline:local .
+docker run --rm -p 80:80 flask-devsecops-pipeline:local
+
+# local app
+http://localhost</pre>
+          <p class="note">
+            This interface is intentionally structured like an operations dashboard so anyone opening the app can
+            understand what was delivered today.
+          </p>
+        </article>
+      </section>
     </main>
   </body>
 </html>
