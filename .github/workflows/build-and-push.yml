@@ -25,6 +25,6 @@ jobs:
           no-cache: true
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USER }}/github-actions-app:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USER }}/github-actions-app:latest
-            ${{ secrets.DOCKERHUB_USER }}/github-actions-app:${{ github.sha}}
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.sha}}
