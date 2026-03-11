@@ -21,7 +21,7 @@ jobs:
             fi
             sudo systemctl enable --now docker || true
 
-            IMAGE="${{ secrets.DOCKERHUB_USER }}/github-actions-app:latest"
+            IMAGE="${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest"
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USER }}" --password-stdin
             sudo docker pull "$IMAGE"
             sudo docker stop flask-devsecops-pipeline || true
