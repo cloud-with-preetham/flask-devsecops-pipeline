@@ -1,0 +1,27 @@
+name: Deploy to Server
+
+on:
+  workflow_call:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy container over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            IMAGE="ghcr.io/${{ github.repository_owner }}/flask-devsecops-pipeline:latest"
+            docker login ghcr.io -u "${{ secrets.DOCKERHUB_USER }}" -p "${{ secrets.DOCKERHUB_TOKEN }}"
+            docker pull "$IMAGE"
+            docker stop flask-devsecops-pipeline || true
+            docker rm flask-devsecops-pipeline || true
+            docker run -d \
+              --name flask-devsecops-pipeline \
+              --restart unless-stopped \
+              -p 80:80 \
+              "$IMAGE"
