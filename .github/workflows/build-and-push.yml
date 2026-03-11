@@ -17,13 +17,46 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push to Docker Hub
+      - name: Build & Push to Docker Hub (attempt 1)
+        id: build_push_1
+        continue-on-error: true
         uses: docker/build-push-action@v6
         with:
           context: .
           pull: true
-          no-cache: true
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.sha}}
+
+      - name: Retry Build & Push (attempt 2)
+        id: build_push_2
+        if: steps.build_push_1.outcome == 'failure'
+        continue-on-error: true
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          pull: true
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
+            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.sha}}
+
+      - name: Retry Build & Push (attempt 3)
+        if: steps.build_push_1.outcome == 'failure' && steps.build_push_2.outcome == 'failure'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          pull: true
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
             ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
