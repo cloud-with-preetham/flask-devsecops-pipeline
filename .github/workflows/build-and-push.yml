@@ -16,58 +16,42 @@ jobs:
       - name: Code Checkout
         uses: actions/checkout@v5
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker-container
+      - name: Login, Buildx setup, and Build & Push (with retries)
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          set -euo pipefail
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          IMAGE_BASE="${DOCKERHUB_USER}/flask-devsecops-pipeline"
+          echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
-      - name: Build & Push to Docker Hub (attempt 1)
-        id: build_push_1
-        continue-on-error: true
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          pull: true
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.sha}}
+          docker buildx create --name ci-builder --driver docker-container --use || docker buildx use ci-builder
+          docker buildx inspect --bootstrap
 
-      - name: Retry Build & Push (attempt 2)
-        id: build_push_2
-        if: steps.build_push_1.outcome == 'failure'
-        continue-on-error: true
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          pull: true
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.sha}}
+          TAG_ARGS=(
+            --tag "${IMAGE_BASE}:${GITHUB_REF_NAME}"
+            --tag "${IMAGE_BASE}:latest"
+            --tag "${IMAGE_BASE}:${GITHUB_SHA}"
+          )
 
-      - name: Retry Build & Push (attempt 3)
-        if: steps.build_push_1.outcome == 'failure' && steps.build_push_2.outcome == 'failure'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          pull: true
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          tags: |
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.ref_name }}
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:latest
-            ${{ secrets.DOCKERHUB_USER }}/flask-devsecops-pipeline:${{ github.sha}}
+          for attempt in 1 2 3; do
+            echo "Build and push attempt ${attempt}/3"
+            if docker buildx build \
+              --pull \
+              --push \
+              --cache-from type=gha \
+              --cache-to type=gha,mode=max \
+              "${TAG_ARGS[@]}" \
+              .; then
+              echo "Build and push succeeded"
+              exit 0
+            fi
+            if [ "${attempt}" -lt 3 ]; then
+              echo "Attempt ${attempt} failed, retrying after 20s..."
+              sleep 20
+            fi
+          done
+
+          echo "Build and push failed after 3 attempts"
+          exit 1
