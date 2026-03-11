@@ -5,9 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 RUN python -m pip install --no-cache-dir --upgrade \
-    pip \
-    "wheel>=0.46.2" \
-    "jaraco.context>=6.1.0" \
+    "pip==25.0.1" \
+    "wheel==0.46.2" \
+    "jaraco.context==6.1.0" \
  && pip install --no-cache-dir -r requirements.txt
 
 COPY . .
