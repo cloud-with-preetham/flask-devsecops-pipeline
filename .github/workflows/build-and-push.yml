@@ -22,6 +22,7 @@ jobs:
         with:
           context: .
           pull: true
+          no-cache: true
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USER }}/github-actions-app:${{ github.ref_name }}
