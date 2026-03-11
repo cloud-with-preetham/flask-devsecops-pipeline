@@ -62,16 +62,14 @@ Flask application with an end-to-end DevSecOps pipeline using reusable GitHub Ac
 ├── app.py
 ├── Dockerfile
 ├── docker-compose.yml
-├── docs/
-│   ├── architecture.md
-│   └── architecture-diagram.html
 ├── requirements.txt
 ├── requirements-dev.txt
 ├── templates/
 │   └── index.html
 ├── screenshots/
 │   ├── architecture.png
-│   ├── dashboard.png
+│   ├── dashboard1.png
+│   ├── dashboard2.png
 │   ├── workflow.png
 │   └── ...
 └── .github/workflows/
