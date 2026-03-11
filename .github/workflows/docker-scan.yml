@@ -1,6 +1,6 @@
 name: Docker Lint
 
-on:
+"on":
   workflow_call:
 
 jobs:
