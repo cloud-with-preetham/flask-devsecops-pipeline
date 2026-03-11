@@ -1,0 +1,38 @@
+name: Code Quality
+
+on:
+  workflow_call:
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dev dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Black
+        run: black --check --workers 1 app.py test_app.py
+
+      - name: Run isort
+        run: isort --check-only app.py test_app.py
+
+      - name: Run Flake8
+        run: flake8 --jobs=1 app.py test_app.py
+
+      - name: Run Bandit
+        run: bandit -q -r app.py
