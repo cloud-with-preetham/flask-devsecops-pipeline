@@ -224,7 +224,8 @@ Recommended usage:
 
 ### Application UI
 
-![Application UI](screenshots/dashboard.png)
+![Application UI](screenshots/dashboard1.png)
+![Application UI](screenshots/dashboard2.png)
 
 ### GitHub Actions Workflow
 
