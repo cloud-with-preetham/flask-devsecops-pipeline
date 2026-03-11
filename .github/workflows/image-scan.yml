@@ -1,10 +1,10 @@
-name: Image Scan
+name: Image Scanner
 
 on:
   workflow_call:
 
 jobs:
-  image-scanner:
+  scan-image:
     runs-on: ubuntu-latest
 
     steps:
