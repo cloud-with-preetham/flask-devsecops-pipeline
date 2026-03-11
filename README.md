@@ -1,7 +1,7 @@
 # Flask DevSecOps Pipeline
 
 [![DevSecOps Pipeline](https://github.com/cloud-with-preetham/flask-devsecops-pipeline/actions/workflows/devsecops-pipeline.yml/badge.svg?branch=main)](https://github.com/cloud-with-preetham/flask-devsecops-pipeline/actions/workflows/devsecops-pipeline.yml)
-[![Docker Pulls](https://img.shields.io/docker/pulls/cloud-with-preetham/flask-devsecops-pipeline?logo=docker)](https://hub.docker.com/r/h4kops/flask-devsecops-pipeline)
+[![Docker Pulls](https://img.shields.io/docker/pulls/h4kops/flask-devsecops-pipeline?logo=docker)](https://hub.docker.com/r/h4kops/flask-devsecops-pipeline)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
