@@ -1,10 +1,10 @@
-name: Dockerfile Scan
+name: Docker Lint
 
 on:
   workflow_call:
 
 jobs:
-  hadolint:
+  validate-dockerfile:
     runs-on: ubuntu-latest
 
     steps:
