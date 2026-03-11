@@ -19,7 +19,7 @@ pip install -r requirements-dev.txt
 python app.py
 ```
 
-App URL: `http://localhost:5000`
+App URL: `http://localhost:8080`
 
 ## Run Tests and Quality Checks
 
@@ -36,7 +36,7 @@ pip-audit -r requirements.txt --strict
 
 ```bash
 docker build -t flask-devsecops-pipeline:local .
-docker run --rm -p 5000:5000 flask-devsecops-pipeline:local
+docker run --rm -p 80:80 flask-devsecops-pipeline:local
 ```
 
 ## GitHub Actions Pipeline
